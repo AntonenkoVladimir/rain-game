@@ -29,10 +29,15 @@ const App = () => {
     setTable(table.map((item, index) => {
       return item.map((i: { class: string }, ind: number) => {
         if (isWater) {
-          isWater = false;
+          if (item[ind + 1].class === 'soil') isWater = false;
           return {class: 'water'};
         } else {
-          if (ind < size.td - 2 && i.class === 'soil' && item[ind + 2].class === 'soil' && item[ind + 1].class === 'empty') {
+          if (
+            ind < size.td - 2 &&
+            item[ind + 1].class !== 'soil' &&
+            i.class === 'soil' &&
+            item.some((k: { class: string }, ki: number) => (ki > ind && k.class === 'soil'))
+          ) {
             isWater = true;
           }
           return i;
