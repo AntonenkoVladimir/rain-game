@@ -10,6 +10,20 @@ const App = () => {
   const [table, setTable] = useState(new Array(size.tr).fill(new Array(size.td).fill({class: 'empty'})));
   const [isWasRain, setIsWasRain] = useState(false);
 
+  const tableSetter = (tr: number, td: number) => {
+    setTable(table.map((item: { class: string, live: number }[], index: number) => {
+      if (index === tr) {
+        return item.map((i: { class: string }, ind: number) => {
+          if (ind === td) {
+            return i.class === 'empty' ? {class: 'soil'} : {class: 'empty'};
+          }
+          return i;
+        })
+      }
+      return item;
+    }));
+  }
+
   const changeColor = (tr: number, td: number) => {
     const isWater = table[tr][td].class !== 'water'
     if (isWasRain && isWater) {
@@ -19,17 +33,9 @@ const App = () => {
       const isTopBorder = tr - 1 < 0;
       const isBottomSoil = !isLowBorder ? table[tr + 1][td].class === 'soil' : true;
       const isTopEmpty = !isTopBorder ? table[tr - 1][td].class === 'empty' : true;
-      if (isLowBorder || (isBottomSoil && isTopEmpty)) {
-        if (isLowBorder && !isTopEmpty) return;
-        setTable(table.map((item, index) => {
-          if (index === tr) {
-            return item.map((i: { class: string }, ind: number) => {
-              if (ind === td) {
-                return i.class === 'empty' ? {class: 'soil'} : {class: 'empty'};
-              } else return i;
-            })
-          } else return item;
-        }));
+
+      if ((isLowBorder && isTopEmpty) || (isBottomSoil && isTopEmpty)) {
+        tableSetter(tr, td);
       }
     }
   }
@@ -38,8 +44,8 @@ const App = () => {
     let isWater = false;
     setTable(table.map((item, index) => {
       return item.map((i: { class: string }, ind: number) => {
-        const isNotBorder = ind < size.td - 2;
-        let isNextSoil = false
+        const isNotBorder = ind < size.td - 1;
+        let isNextSoil = false;
         if (isNotBorder) isNextSoil = item[ind + 1].class === 'soil';
         if (isWater) {
           if (isNextSoil) isWater = false;
