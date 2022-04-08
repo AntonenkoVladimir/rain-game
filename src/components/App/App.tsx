@@ -11,14 +11,24 @@ const App = () => {
   const [isWasRain, setIsWasRain] = useState(false);
 
   const changeColor = (tr: number, td: number) => {
-    if (isWasRain && table[tr][td].class !== 'water') {
+    const isWater = table[tr][td].class !== 'water'
+    if (isWasRain && isWater) {
       clearWater();
     } else {
-      if (tr === size.tr - 1 || (table[tr + 1][td].class === 'soil' && (tr - 1 <= 0 || (table[tr - 1][td].class === 'empty')))) {
-        if (tr === size.tr - 1 && table[tr - 1][td].class !== 'empty') return;
+      const isLowBorder = tr === size.tr - 1;
+      const isTopBorder = tr - 1 < 0;
+      const isBottomSoil = !isLowBorder ? table[tr + 1][td].class === 'soil' : true;
+      const isTopEmpty = !isTopBorder ? table[tr - 1][td].class === 'empty' : true;
+      if (isLowBorder || (isBottomSoil && isTopEmpty)) {
+        if (isLowBorder && !isTopEmpty) return;
         setTable(table.map((item, index) => {
-          return index === tr ? item.map((i: { class: string }, ind: number) =>
-            ind === td ? i.class === 'empty' ? {class: 'soil'} : {class: 'empty'} : i) : item;
+          if (index === tr) {
+            return item.map((i: { class: string }, ind: number) => {
+              if (ind === td) {
+                return i.class === 'empty' ? {class: 'soil'} : {class: 'empty'};
+              } else return i;
+            })
+          } else return item;
         }));
       }
     }
@@ -28,18 +38,16 @@ const App = () => {
     let isWater = false;
     setTable(table.map((item, index) => {
       return item.map((i: { class: string }, ind: number) => {
+        const isNotBorder = ind < size.td - 2;
+        let isNextSoil = false
+        if (isNotBorder) isNextSoil = item[ind + 1].class === 'soil';
         if (isWater) {
-          if (item[ind + 1].class === 'soil') isWater = false;
+          if (isNextSoil) isWater = false;
           return {class: 'water'};
         } else {
-          if (
-            ind < size.td - 2 &&
-            item[ind + 1].class !== 'soil' &&
-            i.class === 'soil' &&
-            item.some((k: { class: string }, ki: number) => (ki > ind && k.class === 'soil'))
-          ) {
-            isWater = true;
-          }
+          const isCurrentSoil = i.class === 'soil';
+          const isFartherSoil = item.some((k: { class: string }, ki: number) => (ki > ind && k.class === 'soil'));
+          if (isNotBorder && !isNextSoil && isCurrentSoil && isFartherSoil) isWater = true;
           return i;
         }
       })
