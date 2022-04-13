@@ -34,7 +34,7 @@ const App = () => {
       const isBottomSoil = !isLowBorder ? table[tr + 1][td].class === 'soil' : true;
       const isTopEmpty = !isTopBorder ? table[tr - 1][td].class === 'empty' : true;
 
-      if ((isLowBorder && isTopEmpty) || (isBottomSoil && isTopEmpty && !isWater)) {
+      if ((isLowBorder && isTopEmpty && !isWater) || (isBottomSoil && isTopEmpty && !isWater)) {
         tableSetter(tr, td);
       }
     }
