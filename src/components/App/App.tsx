@@ -25,8 +25,8 @@ const App = () => {
   }
 
   const changeColor = (tr: number, td: number) => {
-    const isWater = table[tr][td].class !== 'water'
-    if (isWasRain && isWater) {
+    const isWater = table[tr][td].class === 'water'
+    if (isWasRain && !isWater) {
       clearWater();
     } else {
       const isLowBorder = tr === size.tr - 1;
@@ -34,7 +34,7 @@ const App = () => {
       const isBottomSoil = !isLowBorder ? table[tr + 1][td].class === 'soil' : true;
       const isTopEmpty = !isTopBorder ? table[tr - 1][td].class === 'empty' : true;
 
-      if ((isLowBorder && isTopEmpty) || (isBottomSoil && isTopEmpty)) {
+      if ((isLowBorder && isTopEmpty) || (isBottomSoil && isTopEmpty && !isWater)) {
         tableSetter(tr, td);
       }
     }
